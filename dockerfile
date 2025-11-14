@@ -1,13 +1,13 @@
 FROM php:8.2-apache
 
-# Habilitar módulos necesarios
-RUN docker-php-ext-install pdo pdo_mysql
+# Habilitar mod_rewrite
+RUN a2enmod rewrite
 
-# Copiar tu app al contenedor
-COPY . /var/www/html
+# Copiar SOLO el contenido de /api al document root
+COPY api/ /var/www/html/
 
-# Establecer permisos
+# Establecer el directorio de trabajo
+WORKDIR /var/www/html/
+
+# Establecer permisos (opcional, recomendado)
 RUN chown -R www-data:www-data /var/www/html
-
-# Exponer puerto
-EXPOSE 80
