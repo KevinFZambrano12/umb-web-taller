@@ -1,13 +1,13 @@
-# Imagen base con PHP + Apache
 FROM php:8.2-apache
 
-# Activar extensiones necesarias (curl para Supabase)
-RUN docker-php-ext-install pdo pdo_mysql && apt-get update && apt-get install -y curl
+# Habilitar módulos necesarios
+RUN docker-php-ext-install pdo pdo_mysql
 
-# Copiar código
-COPY . /var/www/html/
+# Copiar tu app al contenedor
+COPY . /var/www/html
 
-# Dar permisos correctos
+# Establecer permisos
 RUN chown -R www-data:www-data /var/www/html
 
+# Exponer puerto
 EXPOSE 80
