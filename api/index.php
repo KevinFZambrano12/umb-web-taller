@@ -8,5 +8,9 @@ require_once "controlador.php";
 
 $metodo = $_SERVER["REQUEST_METHOD"];
 
-echo json_encode( manejarSolicitud($metodo) );
-echo "Backend funcionando en Render 🚀"?>
+// Ejecutar función y guardar respuesta
+$respuesta = manejarSolicitud($metodo);
+
+// Devolver JSON y terminar script
+echo json_encode($respuesta);
+exit;
