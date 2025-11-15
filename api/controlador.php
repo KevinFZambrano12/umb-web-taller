@@ -8,8 +8,13 @@ function manejarSolicitud($metodo) {
 
         case "POST":
             $body = json_decode(file_get_contents("php://input"), true);
-            crearTarea($body["titulo"]);
-            return ["mensaje" => "Tarea creada"];
+            $titulo = $body["titulo"];
+            $descripcion = $body["descripcion"] ?? "";
+            $usuario_id = $body["usuario_id"] ?? null;
+
+    crearTarea($titulo, $descripcion, $usuario_id);
+    return ["mensaje" => "Tarea creada"];
+
 
         case "PATCH":
             $body = json_decode(file_get_contents("php://input"), true);

@@ -1,86 +1,85 @@
 <?php
 require_once "db.php";
 
-// === LEER TAREAS ===
+// === Obtener tareas ===
 function obtenerTareas() {
     global $SUPABASE_URL, $SUPABASE_HEADERS;
 
-    $url = "$SUPABASE_URL/rest/v1/tareas?select=*";
+    $curl = curl_init();
+    curl_setopt_array($curl, [
+        CURLOPT_URL => "$SUPABASE_URL/rest/v1/tareas?select=*",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => $SUPABASE_HEADERS
+    ]);
 
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $SUPABASE_HEADERS);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $respuesta = curl_exec($curl);
+    curl_close($curl);
 
-    $resp = curl_exec($ch);
-    curl_close($ch);
-
-    return json_decode($resp, true);
+    return json_decode($respuesta, true);
 }
 
-// === CREAR TAREA ===
-function crearTarea($titulo) {
+// === Crear nueva tarea ===
+// Ahora debe recibir titulo, descripcion opcional y usuario_id opcional
+function crearTarea($titulo, $descripcion = "", $usuario_id = null) {
     global $SUPABASE_URL, $SUPABASE_HEADERS;
 
-    $data = json_encode([
+    $data = [
         "titulo" => $titulo,
+        "descripcion" => $descripcion,
         "completada" => false
+    ];
+
+    if ($usuario_id) {
+        $data["usuario_id"] = $usuario_id;
+    }
+
+    $payload = json_encode($data);
+
+    $curl = curl_init();
+    curl_setopt_array($curl, [
+        CURLOPT_URL => "$SUPABASE_URL/rest/v1/tareas",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_HTTPHEADER => array_merge($SUPABASE_HEADERS, ["Prefer: return=minimal"])
     ]);
 
-    $url = "$SUPABASE_URL/rest/v1/tareas";
-
-    // Añadir Prefer
-    $headers = array_merge($SUPABASE_HEADERS, [
-        "Prefer: return=minimal"
-    ]);
-
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-    $resp = curl_exec($ch);
-    curl_close($ch);
+    curl_exec($curl);
+    curl_close($curl);
 }
 
-// === ACTUALIZAR TAREA ===
-function actualizarTarea($id, $completada) {
+// === Actualizar estado de la tarea ===
+function actualizarTarea($id, $estado) {
     global $SUPABASE_URL, $SUPABASE_HEADERS;
 
-    $data = json_encode([ "completada" => $completada ]);
+    $payload = json_encode(["completada" => $estado]);
 
-    $url = "$SUPABASE_URL/rest/v1/tareas?id=eq.$id";
-
-    $headers = array_merge($SUPABASE_HEADERS, [
-        "Prefer: return=minimal"
+    $curl = curl_init();
+    curl_setopt_array($curl, [
+        CURLOPT_URL => "$SUPABASE_URL/rest/v1/tareas?id=eq.$id",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CUSTOMREQUEST => "PATCH",
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_HTTPHEADER => array_merge($SUPABASE_HEADERS, ["Prefer: return=minimal"])
     ]);
 
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-    $resp = curl_exec($ch);
-    curl_close($ch);
+    curl_exec($curl);
+    curl_close($curl);
 }
 
-// === ELIMINAR TAREA ===
+// === Eliminar tarea ===
 function eliminarTarea($id) {
     global $SUPABASE_URL, $SUPABASE_HEADERS;
 
-    $url = "$SUPABASE_URL/rest/v1/tareas?id=eq.$id";
-
-    $headers = array_merge($SUPABASE_HEADERS, [
-        "Prefer: return=minimal"
+    $curl = curl_init();
+    curl_setopt_array($curl, [
+        CURLOPT_URL => "$SUPABASE_URL/rest/v1/tareas?id=eq.$id",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CUSTOMREQUEST => "DELETE",
+        CURLOPT_HTTPHEADER => array_merge($SUPABASE_HEADERS, ["Prefer: return=minimal"])
     ]);
 
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-    $resp = curl_exec($ch);
-    curl_close($ch);
+    curl_exec($curl);
+    curl_close($curl);
 }
 ?>
